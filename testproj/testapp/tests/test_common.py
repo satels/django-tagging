@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import os
 
+import six
 from django import forms
-from django.utils import six
 from django.db.models import Q
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -15,13 +12,6 @@ from tagging.forms import TagField
 from tagging.forms import TagAdminForm
 from tagging.models import Tag
 from tagging.models import TaggedItem
-from tagging.tests.models import Article
-from tagging.tests.models import Link
-from tagging.tests.models import Perch
-from tagging.tests.models import Parrot
-from tagging.tests.models import FormTest
-from tagging.tests.models import FormTestNull
-from tagging.tests.models import FormMultipleFieldTest
 from tagging.utils import LINEAR
 from tagging.utils import LOGARITHMIC
 from tagging.utils import get_tag
@@ -30,6 +20,14 @@ from tagging.utils import calculate_cloud
 from tagging.utils import parse_tag_input
 from tagging.utils import edit_string_for_tags
 from tagging.utils import _calculate_tag_weight
+
+from testapp.models import Article
+from testapp.models import Link
+from testapp.models import Perch
+from testapp.models import Parrot
+from testapp.models import FormTest
+from testapp.models import FormTestNull
+from testapp.models import FormMultipleFieldTest
 
 #############
 # Utilities #
@@ -208,7 +206,7 @@ class TestCalculateCloud(TestCase):
     def setUp(self):
         self.tags = []
         for line in open(os.path.join(os.path.dirname(__file__),
-                                      'tags.txt')).readlines():
+                                      '..', '..', 'tags.txt')).readlines():
             name, count = line.rstrip().split()
             tag = Tag(name=name)
             tag.count = int(count)
@@ -1143,7 +1141,7 @@ class TestTagFieldInForms(TestCase):
     def test_tag_get_from_model(self):
         FormTest.objects.create(tags='test3 test2 test1')
         FormTest.objects.create(tags='toto titi')
-        self.assertEquals(FormTest.tags, 'test1 test2 test3 titi toto')
+        self.assertEqual(FormTest.tags, 'test1 test2 test3 titi toto')
 
 
 #########
@@ -1174,12 +1172,12 @@ class TestTagAdminForm(TestCase):
 
 
 @override_settings(
-    ROOT_URLCONF='tagging.tests.urls',
+    ROOT_URLCONF='urls',
     TEMPLATES=[
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'OPTIONS': {
-                'loaders': ('tagging.tests.utils.VoidLoader',)
+                'loaders': ('utils.VoidLoader',)
             }
         }
     ]
@@ -1195,10 +1193,10 @@ class TestTaggedObjectList(TestCase):
     def get_view(self, url, queries=1, code=200,
                  expected_items=1,
                  friendly_context='article_list',
-                 template='tests/article_list.html'):
+                 template='testapp/article_list.html'):
         with self.assertNumQueries(queries):
             response = self.client.get(url)
-        self.assertEquals(response.status_code, code)
+        self.assertEqual(response.status_code, code)
 
         if code == 200:
             self.assertTrue(isinstance(response.context['tag'], Tag))
@@ -1218,7 +1216,7 @@ class TestTaggedObjectList(TestCase):
     def test_view_related(self):
         response = self.get_view('/static/related/',
                                  queries=2, expected_items=2)
-        self.assertEquals(len(response.context['related_tags']), 2)
+        self.assertEqual(len(response.context['related_tags']), 2)
 
     def test_view_no_queryset_no_model(self):
         self.assertRaises(ImproperlyConfigured, self.get_view,

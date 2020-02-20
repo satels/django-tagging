@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # django-tagging documentation build configuration file, created by
 # sphinx-quickstart on Thu May 14 19:31:27 2015.
 #

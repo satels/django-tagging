@@ -1,38 +1,74 @@
+services:
+    - postgresql
+    - mysql
 language: python
-python:
-    - 2.7
-    - 3.5
-env:
-    - DJANGO=1.8 DATABASE_ENGINE=sqlite
-    - DJANGO=1.8 DATABASE_ENGINE=postgres
-    - DJANGO=1.8 DATABASE_ENGINE=mysql
-    - DJANGO=1.9 DATABASE_ENGINE=sqlite
-    - DJANGO=1.9 DATABASE_ENGINE=postgres
-    - DJANGO=1.9 DATABASE_ENGINE=mysql
-    - DJANGO=1.10 DATABASE_ENGINE=sqlite
-    - DJANGO=1.10 DATABASE_ENGINE=postgres
-    - DJANGO=1.10 DATABASE_ENGINE=mysql
+jobs:
+  fast_finish: true
+  include:
+    - python: 3.5
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=sqlite
+    - python: 3.5
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=postgres
+    - python: 3.5
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=mysql
+    - python: 3.6
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=sqlite
+    - python: 3.6
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=postgres
+    - python: 3.6
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=mysql
+    - python: 3.6
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=sqlite
+    - python: 3.6
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=postgres
+    - python: 3.6
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=mysql
+    - python: 3.7
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=sqlite
+    - python: 3.7
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=postgres
+    - python: 3.7
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=mysql
+    - python: 3.7
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=sqlite
+    - python: 3.7
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=postgres
+    - python: 3.7
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=mysql
+    - python: 3.8
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=sqlite
+    - python: 3.8
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=postgres
+    - python: 3.8
+      env: DJANGO_VERSION=2.0.0 DATABASE_ENGINE=mysql
+    - python: 3.8
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=sqlite
+    - python: 3.8
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=postgres
+    - python: 3.8
+      env: DJANGO_VERSION=3.0.3 DATABASE_ENGINE=mysql
 install:
-    - pip install -U setuptools
-    - python bootstrap.py
-    - ./bin/buildout versions:django=$DJANGO
+    - pip install -q Django==$DJANGO_VERSION flake8 coverage coveralls pytest pytest-cov pytest-django
+    - python setup.py -q install
     - sh -c "if [ '$DATABASE_ENGINE' = 'postgres' ];
       then
         pip install psycopg2;
-        psql -c 'create database tagging;' -U postgres;
       fi"
     - sh -c "if [ '$DATABASE_ENGINE' = 'mysql' ];
       then
         pip install mysqlclient;
-        mysql -e 'create database tagging CHARACTER SET utf8 COLLATE utf8_general_ci;';
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql;
       fi"
 before_script:
-    - ./bin/flake8 tagging
+    - flake8 tagging
+    - sh -c "if [ '$DATABASE_ENGINE' = 'postgres' ];
+      then
+        psql -c 'create database tagging;' -U postgres;
+      fi"
+    - sh -c "if [ '$DATABASE_ENGINE' = 'mysql' ];
+      then
+        mysql -e 'create database tagging CHARACTER SET utf8 COLLATE utf8_unicode_ci;';
+        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql;
+      fi"
 script:
-    - ./bin/test-and-cover
-after_success:
-    - ./bin/coveralls
-notifications:
-    irc:
-        - "irc.freenode.org#django-tagging"
+    - rm -rf tagging/  # We remove origin code due to wrong lib path
+    - DJANGO_SETTINGS_MODULE=settings pytest ./testproj --cov --no-cov-on-fail --nomigrations --cov-fail-under=70

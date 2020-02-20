@@ -1,8 +1,11 @@
 [run]
 source		= tagging
-omit		= tagging/tests/*
+omit		=
+    tagging/migrations/*
+    tagging/tests/*
 
 [report]
-show_missing    = True
 exclude_lines	=
     pragma: no cover
+show_missing    = True
+sort = Miss

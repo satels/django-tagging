@@ -1,1 +1,9 @@
+__pycache__
+.coverage
+build/
+dist/
+django_tagging.egg-info/
 docs/_build
+*.pyc
+*.wpr
+*.wpu

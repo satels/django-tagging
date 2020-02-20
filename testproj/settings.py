@@ -17,16 +17,16 @@ if DATABASE_ENGINE == 'postgres':
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'tagging',
             'USER': 'postgres',
-            'HOST': 'localhost'
+            'HOST': '127.0.0.1'
         }
     }
 elif DATABASE_ENGINE == 'mysql':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'zinnia',
+            'NAME': 'tagging',
             'USER': 'root',
-            'HOST': 'localhost'
+            'HOST': '127.0.0.1',
         }
     }
 
@@ -35,5 +35,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.contenttypes',
     'tagging',
-    'tagging.tests',
+
+    'testapp',
 ]
